@@ -1,0 +1,206 @@
+micronaut:
+  server:
+    port: 8888
+akhq:
+  server:
+    access-log: # Access log configuration (optional)
+      enabled: true # true by default
+      name: org.akhq.log.access # Logger name
+      format: "[Date: {}] [Duration: {} ms] [Url: {} {}] [Status: {}] [Ip: {}] [User: {}]" # Logger format
+
+  # default kafka properties for each clients, available for admin / producer / consumer (optional)
+  clients-defaults:
+    consumer:
+      properties:
+        isolation.level: read_committed
+
+  # list of kafka cluster available for akhq
+  connections:
+    local-cluster-plain:
+      properties:
+        bootstrap.servers: "127.0.0.1:29092"
+      schema-registry:
+        url: "http://127.0.0.1:8081"
+    kafka-plain:
+      properties:
+        bootstrap.servers: "kafka:9092"
+    kafka:
+      properties:
+        bootstrap.servers: "127.0.0.1:9092"
+        security.protocol: SSL
+        ssl.truststore.location: /certs/kafka.client.keystore.jks
+        ssl.truststore.password: password
+        ssl.keystore.location: /certs/kafka.client.truststore.jks
+        ssl.keystore.password: password
+        ssl.key.password: password
+    kafka2:
+      properties:
+        bootstrap.servers: "kafka:9092"
+        security.protocol: SSL
+        ssl.truststore.location: /certs/kafka.client.keystore.jks
+        ssl.truststore.password: password
+        ssl.keystore.location: /certs/kafka.client.truststore.jks
+        ssl.keystore.password: password
+        ssl.key.password: password
+    kafka-3:
+      properties:
+        bootstrap.servers: "127.0.0.1:9093"
+        security.protocol: SSL
+        ssl.truststore.location: /certs/kafka.client.keystore.jks
+        ssl.truststore.password: password
+        ssl.keystore.location: /certs/kafka.client.truststore.jks
+        ssl.keystore.password: password
+        ssl.key.password: password
+    kafka2-3:
+      properties:
+        bootstrap.servers: "kafka:9093"
+        security.protocol: SSL
+        ssl.truststore.location: /certs/kafka.client.keystore.jks
+        ssl.truststore.password: password
+        ssl.keystore.location: /certs/kafka.client.truststore.jks
+        ssl.keystore.password: password
+        ssl.key.password: password
+    mialm-pre-cluster-sasl:
+      properties:
+        bootstrap.servers: "event-bus-kafka-bootstrap-sanes-mialm-pre.appls.san01.san.pre.bo1.paas.cloudcenter.corp:443"
+        security.protocol: SASL_SSL
+        sasl.mechanism: SCRAM-SHA-512       
+        sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username=mialm-admin password=ZPY1qvhNw8ZV;
+        ssl.truststore.location: C:/portApps/AKHQ/truststore-pre.jks
+        ssl.truststore.password: password
+        ssl.keystore.location: C:/portApps/AKHQ/truststore-pre.jks
+        ssl.keystore.password: password
+        ssl.key.password: password
+    mialm-pro-cluster-sasl:
+      properties:
+        bootstrap.servers: "event-bus-kafka-bootstrap-sanes-mialm-pro.appls.san01.san.pro.bo1.paas.cloudcenter.corp:443"
+        security.protocol: SASL_SSL
+        sasl.mechanism: SCRAM-SHA-512       
+        sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username=mialm-admin password=aQSY188NDkPi;
+        ssl.truststore.location: C:/portApps/AKHQ/truststore-pro.jks
+        ssl.truststore.password: password
+        ssl.keystore.location: C:/portApps/AKHQ/truststore-pro.jks
+        ssl.keystore.password: password
+        ssl.key.password: password
+  pagination:
+    page-size: 25 # number of elements per page (default : 25)
+    threads: 16 # Number of parallel threads to resolve page
+
+  # Topic list display options (optional)
+  topic:
+    retention: 172800000 # default retention period when creating topic
+    partition: 3 #  default number of partition when creating topic
+    replication: 3 # default number of replicas when creating topic
+    internal-regexps: # list of regexp to be considered as internal (internal topic can't be deleted or updated)
+      - "^_.*$"
+      - "^.*_schemas$"
+      - "^.*connect-config$"
+      - "^.*connect-offsets$1"
+      - "^.*connect-status$"
+    stream-regexps: # list of regexp to be considered as internal stream topic
+      - "^.*-changelog$"
+      - "^.*-repartition$"
+      - "^.*-rekey$"
+    skip-consumer-groups: false # Skip loading consumer group information when showing topics
+    skip-last-record: false # Skip loading last record date information when showing topics
+
+  # Topic display data options (optional)
+  topic-data:
+    size: 50 # max record per page (default: 50)
+    poll-timeout: 1000 # The time, in milliseconds, spent waiting in poll if data is not available in the buffer.
+
+  # Ui Global Options (optional)
+  ui-options:
+    topic:
+      default-view: ALL  # default list view (ALL, HIDE_INTERNAL, HIDE_INTERNAL_STREAM, HIDE_STREAM). Overrides default
+      skip-consumer-groups: false # Skip loading consumer group information when showing topics. Overrides default
+      skip-last-record: true  # Skip loading last record date information when showing topics.  Overrides default
+    topic-data:
+      sort: NEWEST # default sort order (OLDEST, NEWEST) (default: OLDEST).  Overrides default
+
+  # Auth & Roles (optional)
+  security:
+    default-group: admin # Default groups for all the user even unlogged user
+    # Groups definition
+    groups:
+      admin: # unique key
+        name: admin # Group name
+        roles:  # roles for the group
+          - topic/read
+          - topic/insert
+          - topic/delete
+          - topic/config/update
+          - node/read
+          - node/config/update
+          - topic/data/read
+          - topic/data/insert
+          - topic/data/delete
+          - group/read
+          - group/delete
+          - group/offsets/update
+          - registry/read
+          - registry/insert
+          - registry/update
+          - registry/delete
+          - registry/version/delete
+          - acls/read
+          - connect/read
+          - connect/insert
+          - connect/update
+          - connect/delete
+          - connect/state/update
+        attributes:
+          # Regexp to filter topic available for group
+          topics-filter-regexp: "test.*"
+          # Regexp to filter connect configs visible for group
+          connects-filter-regexp: "^test.*$"
+      topic-reader: # unique key
+        name: topic-reader # Other group
+        roles:
+          - topic/read
+        attributes:
+          topics-filter-regexp: "test\\.reader.*"
+
+    # Basic auth configuration
+    basic-auth:
+      - username: user # Username
+        password: pass # Password in sha256
+        groups: # Groups for the user
+          - admin
+          - topic-reader
+
+    # Ldap Groups configuration (when using ldap)
+    ldap:
+      default-group: topic-reader
+      groups:
+        - name: group-ldap-1
+          groups: # Akhq groups list
+            - topic-reader
+        - name: group-ldap-2
+          groups:
+            - admin
+      users:
+        - username: riemann # ldap user id
+          groups: # Akhq groups list
+            - topic-reader
+        - username: einstein
+          groups:
+            - admin
+
+    # OIDC configuration
+    oidc:
+      enabled: true
+      providers:
+        oidc:
+          label: "Login with OIDC"
+          username-field: preferred_username
+          groups-field: roles
+          default-group: topic-reader
+          groups:
+            - name: oidc-admin-group
+              groups:
+                - admin
+          users:
+            - username: einstein
+              groups:
+                - admin

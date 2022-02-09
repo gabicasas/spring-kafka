@@ -3,9 +3,11 @@ package com.baeldung.kafka.ssl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -29,10 +31,11 @@ class KafkaSslApplicationLiveTest {
     private static final int SSL_PORT = 9093;
 
     @Container
-    public DockerComposeContainer<?> container =
-      new DockerComposeContainer<>(KAFKA_COMPOSE_FILE)
-              .withExposedService(KAFKA_SERVICE, SSL_PORT);
-        //.withExposedService(KAFKA_SERVICE, SSL_PORT, Wait.forListeningPort());
+    public DockerComposeContainer container =
+      new DockerComposeContainer(KAFKA_COMPOSE_FILE)
+              .withLocalCompose(true)
+              .withLogConsumer(KAFKA_SERVICE, new Slf4jLogConsumer(log))
+             .withExposedService(KAFKA_SERVICE, SSL_PORT, Wait.forListeningPort());
 
     @Autowired
     private KafkaProducer kafkaProducer;

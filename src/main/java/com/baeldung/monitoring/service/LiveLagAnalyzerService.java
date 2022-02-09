@@ -16,7 +16,7 @@ public class LiveLagAnalyzerService {
     @Autowired
     public LiveLagAnalyzerService(
             LagAnalyzerService lagAnalyzerService,
-            @Value(value = "${monitor.kafka.consumer.groupid}") String groupId) {
+            @Value("${monitor.kafka.consumer.groupid}") String groupId) {
         this.lagAnalyzerService = lagAnalyzerService;
         this.groupId = groupId;
     }

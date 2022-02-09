@@ -28,3 +28,12 @@ services:
       KAFKA_SSL_TRUSTSTORE_CREDENTIALS: '/certs/kafka_truststore_credentials'
     volumes:
       - ./certs/:/etc/kafka/secrets/certs
+  akhq:
+    image: tchiotludo/akhq
+    depends_on:
+      - kafka
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./akhq/application.yml:/app/application.yml
+      - ../client-certs/:/certs/

@@ -23,7 +23,9 @@ public class LagAnalyzerService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LagAnalyzerService.class);
 
+    //Cliente administrativo de Kafka
     private final AdminClient adminClient;
+    //Consumer de Kafka
     private final KafkaConsumer<String, String> consumer;
 
     @Autowired
@@ -57,10 +59,12 @@ public class LagAnalyzerService {
         ListConsumerGroupOffsetsResult info = adminClient.listConsumerGroupOffsets(groupId);
         Map<TopicPartition, OffsetAndMetadata> metadataMap
                 = info.partitionsToOffsetAndMetadata().get();
+
         Map<TopicPartition, Long> groupOffset = new HashMap<>();
         for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : metadataMap.entrySet()) {
             TopicPartition key = entry.getKey();
             OffsetAndMetadata metadata = entry.getValue();
+
             groupOffset.putIfAbsent(new TopicPartition(key.topic(), key.partition()), metadata.offset());
         }
         return groupOffset;

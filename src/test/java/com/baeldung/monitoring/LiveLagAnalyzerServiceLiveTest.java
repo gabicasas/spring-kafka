@@ -18,19 +18,33 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
+
 @RunWith(SpringRunner.class)
 @DirtiesContext
-@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9085", "port=9085"})
+//@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9085", "port=9085"})
 @EnableKafka
+@Testcontainers
 public class LiveLagAnalyzerServiceLiveTest {
+
+
+    @Container
+    static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"))
+            .waitingFor(
+                    Wait.forLogMessage(".*Ready to accept connections.*\\n", 1)
+            );
+    private static  String BOOTSTRAP_SERVER_CONFIG = "localhost:9085";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LiveLagAnalyzerServiceLiveTest.class);
 
@@ -41,7 +55,7 @@ public class LiveLagAnalyzerServiceLiveTest {
     private static final String TOPIC = "baeldung";
     private static final int PARTITION = 0;
     private static final TopicPartition TOPIC_PARTITION = new TopicPartition(TOPIC, PARTITION);
-    private static final String BOOTSTRAP_SERVER_CONFIG = "localhost:9085";
+
     private static final int BATCH_SIZE = 100;
     private static final long POLL_DURATION = 1000L;
 
@@ -49,6 +63,7 @@ public class LiveLagAnalyzerServiceLiveTest {
     public void setup() throws Exception {
         initProducer();
         initConsumer();
+        BOOTSTRAP_SERVER_CONFIG =kafka.getBootstrapServers();
         lagAnalyzerService = new LagAnalyzerService(BOOTSTRAP_SERVER_CONFIG);
         consume();
     }

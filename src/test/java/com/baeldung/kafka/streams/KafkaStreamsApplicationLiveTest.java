@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -49,7 +50,7 @@ class KafkaStreamsApplicationLiveTest {
     @Container
     private static final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:5.4.3"));
 
-    @TempDir //No funciona bien en windows
+   @TempDir//No funciona bien en windows
     private static File tempDir;
 
     private KafkaMessageListenerContainer<Integer, String> consumer;
@@ -64,6 +65,11 @@ class KafkaStreamsApplicationLiveTest {
     public void setUp() {
         output.clear();
         createConsumer();
+    }
+
+    @After
+    public void tearDown() {
+        tempDir= null;
     }
 
     @Test

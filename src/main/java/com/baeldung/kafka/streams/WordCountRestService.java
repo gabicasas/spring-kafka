@@ -1,5 +1,6 @@
 package com.baeldung.kafka.streams;
 
+import com.baeldung.kafka.streams.model.Message;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
@@ -29,8 +30,9 @@ public class WordCountRestService {
         return counts.get(word);
     }
 
-    @PostMapping("/message")
-    public void addMessage(@RequestBody String message) {
-        kafkaProducer.sendMessage(message);
+    @PostMapping(value = "/message", consumes = "application/json")
+
+    public void addMessage(@RequestBody Message message) {
+        kafkaProducer.sendMessage(message.getKey(), message.getMessage());
     }
 }

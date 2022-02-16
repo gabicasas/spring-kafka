@@ -13,10 +13,11 @@ public class KafkaProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public void sendMessage(String message) {
-        kafkaTemplate.send("input-topic", message)
+    public void sendMessage(String key, String message) {
+
+        kafkaTemplate.send("input-topic", key, message)
           .addCallback(
-            result -> log.info("Message sent to topic: {}", message),
+            result -> log.info("Message with key: {} sent to topic: {}", key, message),
             ex -> log.error("Failed to send message", ex)
           );
     }
